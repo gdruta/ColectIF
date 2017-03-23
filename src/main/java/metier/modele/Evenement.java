@@ -14,6 +14,7 @@ import javax.persistence.OneToMany;
 import java.io.Serializable;
 import java.util.GregorianCalendar;
 import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
 
 /**
  *
@@ -28,7 +29,7 @@ public class Evenement {
     private String moment; 
     @ManyToOne
     private Activite activite;
-    @OneToMany
+    @ManyToMany
     private List<Adherent> listAdherents;
     @ManyToOne
     private Lieu lieu;
