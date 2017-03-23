@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import metier.modele.Demande;
+import com.google.maps.model.LatLng;
 
 /**
  *
@@ -161,13 +162,15 @@ public class ServiceMetier {
         return false;
         
     }
+	
+
     
     static public List<Adherent> ConsulterListeAd() {
 
         JpaUtil.creerEntityManager();
 
         AdherentDAO AdDAO = new AdherentDAO();
-        List<Adherent> list=null;
+        List<Adherent> list=new ArrayList<Adherent>();;
         try {     
             list= AdDAO.findAll();
         } catch (Exception ex) {
@@ -184,7 +187,7 @@ public class ServiceMetier {
         JpaUtil.creerEntityManager();
 
         ActiviteDAO AcDAO = new ActiviteDAO();
-        List<Activite> list=null;
+        List<Activite> list=new ArrayList<Activite>();
         try {     
             list= AcDAO.findAll();
         } catch (Exception ex) {
@@ -201,7 +204,7 @@ public class ServiceMetier {
         JpaUtil.creerEntityManager();
 
         LieuDAO lDAO = new LieuDAO();
-        List<Lieu> list=null;
+        List<Lieu> list=new ArrayList<Lieu>();
         try {     
             list= lDAO.findAll();
         } catch (Exception ex) {
@@ -218,9 +221,27 @@ public class ServiceMetier {
         JpaUtil.creerEntityManager();
 
         EvenementDAO EvDAO = new EvenementDAO();
-        List<Evenement> list=null;
+        List<Evenement> list=new ArrayList<Evenement>();
         try {     
             list= EvDAO.findAll();
+        } catch (Exception ex) {
+            Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        JpaUtil.fermerEntityManager();
+        
+        return list;
+    }
+	
+	//à tester
+	static public List<Evenement> getAllEvenementPastToday() {
+
+        JpaUtil.creerEntityManager();
+
+        EvenementDAO EvDAO = new EvenementDAO();
+        List<Evenement> list=new ArrayList<Evenement>();
+        try {     
+            list= EvDAO.findAllPastToday();
         } catch (Exception ex) {
             Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -386,6 +407,25 @@ public class ServiceMetier {
     }
     
 
+	//à tester
+	static public List<LatLng> getAllCoordonneesAdherent(Evenement evenement)
+    {
+        JpaUtil.creerEntityManager();
+		
+        List<LatLng> coordonees = new ArrayList<LatLng>();
+		List<Adherent> listAdherents = evenement.listAdherents;
+		
+		LatLng l;
+		for ( Adherent ad : listAdherents)
+            {
+				l.longitude = ad.longitude;
+				l.latitude = ad.latitude;
+				coordonees.add(l);
+			}
+
+        return coordonees;
+    }
+	
      static public Evenement getEvenementByID (long id)
     {
         JpaUtil.creerEntityManager();

@@ -24,9 +24,30 @@ public class EvenementDAO {
     
     public List<Evenement> findAll() throws Exception {
         EntityManager em = JpaUtil.obtenirEntityManager();
-        List<Evenement> activites = new ArrayList<Evenement>();;
+        List<Evenement> activites = new ArrayList<Evenement>();
         try {
             Query q = em.createQuery("SELECT a FROM Evenement a");
+            activites = (List<Evenement>) q.getResultList();
+        }
+        catch(Exception e) {
+            throw e;
+        }
+        
+        return activites;
+    }
+	
+	public List<Evenement> findAll() throws Exception {
+        EntityManager em = JpaUtil.obtenirEntityManager();
+        List<Evenement> activites = new ArrayList<Evenement>();
+		//date d'aujourd'hui
+		GregorianCalendar gregorianCalendar=new GregorianCalendar();
+		//même format que ce qu'on rentre
+		GregorianCalendar date = new GregorianCalendar(GregorianCalendar.YEAR,GregorianCalendar.MONTH,GregorianCalendar.DAY_OF_MONTH);
+
+        try {
+			// a tester, vérifier que ça rend bien tout les évenment après aujourd'hui
+            Query q = em.createQuery("SELECT a FROM Evenement a WHERE a.date >= date1");
+			q.setParameter("date1", date);
             activites = (List<Evenement>) q.getResultList();
         }
         catch(Exception e) {
