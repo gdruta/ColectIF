@@ -70,8 +70,8 @@ public class Main {
         // ajouter aux methodes DAO des recherches avec facteur, demande de doublons, toute les demandes avec activité x, toute les demandes d'adherent, d'une date...
         
         
-        ServiceMetier.PersisterDemande(d1);
-        ServiceMetier.PersisterDemande(d2);
+        ServiceMetier.CreerDemande(d1);
+        ServiceMetier.CreerDemande(d2);
         System.out.println(d1);
         System.out.println(d2);       
         

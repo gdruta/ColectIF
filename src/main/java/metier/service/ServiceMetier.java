@@ -1,4 +1,4 @@
-/*
+﻿/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -28,11 +28,14 @@ public class ServiceMetier {
         ad = ServiceTechnique.miseAJourAdherent(ad);
         
         JpaUtil.creerEntityManager();
-        JpaUtil.ouvrirTransaction();
-
+        JpaUtil.ouvrirTransaction();       
         AdherentDAO AdDAO = new AdherentDAO();
         AdDAO.persister(ad);
-        JpaUtil.validerTransaction();
+        try {            
+            JpaUtil.validerTransaction();
+        } catch (Exception ex) {
+            JpaUtil.annulerTransaction();
+        }       
         
         JpaUtil.fermerEntityManager();
     }
@@ -75,10 +78,10 @@ public class ServiceMetier {
         
         JpaUtil.fermerEntityManager();
     }
-    // plus logique si on l'appelais "creerDemande" puisqu'on a creerAdherent et creerActivite
-    static public void PersisterDemande(Demande d){        
 
-        System.out.println("Je suis dans PersisterDemande");
+    static public void CreerDemande(Demande d){        
+
+        System.out.println("Je suis dans CreerDemande");
         try {
             System.out.println("Il existe un doublon : " +verifyDoublonDemande(d));
             if (!verifyDoublonDemande(d))
@@ -180,8 +183,7 @@ public class ServiceMetier {
         JpaUtil.fermerEntityManager();
     }
     
-    static public boolean verifyMail (String mail)
-    {
+    static public boolean verifyMail (String mail){
         JpaUtil.creerEntityManager();
         AdherentDAO AdDAO = new AdherentDAO();
         Adherent adherent=null;
@@ -198,8 +200,7 @@ public class ServiceMetier {
         return true;
     }
     
-    static public Adherent getAdherentByMail (String mail)
-    {
+    static public Adherent getAdherentByMail (String mail){
         JpaUtil.creerEntityManager();
         AdherentDAO AdDAO = new AdherentDAO();
         Adherent adherent=null;
@@ -230,8 +231,7 @@ public class ServiceMetier {
         return list;
     }
     
-    static public Adherent getAdherentByID (long id)
-    {
+    static public Adherent getAdherentByID (long id){
         JpaUtil.creerEntityManager();
         AdherentDAO AdDAO = new AdherentDAO();
         Adherent adherent=null;
@@ -245,22 +245,20 @@ public class ServiceMetier {
         return adherent;
     }
     
-    static public List<Demande> getAllDemande ()
-    {        
+    static public List<Demande> getAllDemande (){        
         JpaUtil.creerEntityManager();
         DemandeDAO DemDAO = new DemandeDAO();
-        List<Demande> dem = new ArrayList<Demande>();
+        List<Demande> demList = new ArrayList<Demande>();
         try {
-            dem =DemDAO.findAll();
+            demList =DemDAO.findAll();
         } catch (Exception ex) {
             Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
         } 
         JpaUtil.fermerEntityManager();
-        return dem;
+        return demList;
     }
     
-    static public Demande getDemandeByID (long id)
-    {
+    static public Demande getDemandeByID (long id){
         JpaUtil.creerEntityManager();
         DemandeDAO DemDAO = new DemandeDAO();
         Demande dem=null;
@@ -274,8 +272,7 @@ public class ServiceMetier {
         return dem;
     }
     
-     static public List<Demande> getDemandeByAuthor(Adherent ad)
-    {
+     static public List<Demande> getDemandeByAuthor(Adherent ad){
         JpaUtil.creerEntityManager();
         
         DemandeDAO DemDAO = new DemandeDAO();
@@ -442,8 +439,10 @@ public class ServiceMetier {
         
         return list;
     }
+    
      
-    static public List<Activite> getAllActivite ()
+      static public List<Activite> getAllActivite ()
+
     {        
         JpaUtil.creerEntityManager();
         ActiviteDAO AcDAO = new ActiviteDAO();
