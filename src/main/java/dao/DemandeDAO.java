@@ -66,15 +66,16 @@ public class DemandeDAO {
         
         return dem;
     }
-     public List<Demande> findComparable(GregorianCalendar date, String moment, Activite activite) throws Exception {
+     
+    public List<Demande> getSame(Demande d) throws Exception {
         EntityManager em = JpaUtil.obtenirEntityManager();
         List<Demande> dem = new ArrayList<Demande>();
         try {
             String query = "SELECT a FROM Demande a WHERE a.date=:date1 AND a.activite=:activite1 AND a.moment=:moment1" ;
             Query q = em.createQuery(query);
-            q.setParameter("date1", date);
-            q.setParameter("activite1", activite);
-            q.setParameter("moment1", moment);
+            q.setParameter("date1", d.getDate());
+            q.setParameter("activite1", d.getActivite());
+            q.setParameter("moment1", d.getMoment());
             dem = (List<Demande>) q.getResultList();
         }
         catch(Exception e) {
@@ -84,16 +85,16 @@ public class DemandeDAO {
         return dem;
     }
      
-     public List<Demande> findComparableSameAuthor(GregorianCalendar date, String moment, Activite activite, Adherent adherent) throws Exception {
+    public List<Demande> getDemandesExistant(Demande d) throws Exception {
         EntityManager em = JpaUtil.obtenirEntityManager();
         List<Demande> dem = new ArrayList<Demande>();
         try {
             String query = "SELECT a FROM Demande a WHERE a.date=:date1 AND a.activite=:activite1 AND a.moment=:moment1 AND a.demandeur=:adherent1" ;
             Query q = em.createQuery(query);
-            q.setParameter("date1", date);
-            q.setParameter("activite1", activite);
-            q.setParameter("moment1", moment);
-            q.setParameter("adherent1", adherent);
+            q.setParameter("date1", d.getDate());
+            q.setParameter("activite1", d.getActivite());
+            q.setParameter("moment1", d.getMoment());
+            q.setParameter("adherent1", d.getDemandeur());
             dem = (List<Demande>) q.getResultList();
         }
         catch(Exception e) {
@@ -101,6 +102,14 @@ public class DemandeDAO {
         }
         
         return dem;
+    }
+    
+    public boolean demandeExists(Demande d) throws Exception {
+        List<Demande> dList = getDemandesExistant(d);
+        if (dList.isEmpty()){
+            return false;
+        }
+        return true;
     }
     
     

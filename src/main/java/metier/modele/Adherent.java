@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import metier.service.ServiceTechnique;
 
@@ -25,6 +26,8 @@ public class Adherent implements Serializable {
     private Double latitude;
     @OneToMany(mappedBy="demandeur")
     private List<Demande> listDemandes;
+    @ManyToMany
+    private List<Evenement> listEvenements;
     
     protected Adherent() {
     }
@@ -37,9 +40,10 @@ public class Adherent implements Serializable {
         this.longitude = null;
         this.latitude = null;
         listDemandes = new ArrayList<Demande>();
+        listEvenements = new ArrayList<Evenement>();
         
     }
-    public void addListDemande(Demande d){
+    public void addDemande(Demande d){
         listDemandes.add(d);
     }
 

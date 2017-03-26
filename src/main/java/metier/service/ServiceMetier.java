@@ -22,8 +22,11 @@ import com.google.maps.model.LatLng;
  * @author epetit
  */
 public class ServiceMetier {
+
     // c minuscule
-    static public void CreerAdherent(Adherent ad){
+    //----Adherent----
+    static public void CreerAdherent(Adherent ad) throws ServiceException{
+
 
         ad = ServiceTechnique.miseAJourAdherent(ad);
         
@@ -35,6 +38,7 @@ public class ServiceMetier {
             JpaUtil.validerTransaction();
         } catch (Exception ex) {
             JpaUtil.annulerTransaction();
+            throw new ServiceException("ERREUR : Adhérent n'a pas pu être ajouté.");
         }       
         
         JpaUtil.fermerEntityManager();
@@ -79,33 +83,47 @@ public class ServiceMetier {
         JpaUtil.fermerEntityManager();
     }
 
-    static public void CreerDemande(Demande d){        
-
-        System.out.println("Je suis dans CreerDemande");
+    //----Demande----
+    static public void CreerDemande(Demande d) throws ServiceException{        
+        JpaUtil.creerEntityManager();
+        DemandeDAO dDAO = new DemandeDAO();
         try {
-            System.out.println("Il existe un doublon : " +verifyDoublonDemande(d));
-            if (!verifyDoublonDemande(d))
-            {
-                JpaUtil.creerEntityManager();
-                JpaUtil.ouvrirTransaction();
-                DemandeDAO DDAO = new DemandeDAO();
-                AdherentDAO AdDAO = new AdherentDAO();
-                DDAO.persister(d);
-                Adherent a = d.getDemandeur();
-                a.addListDemande(d);
-                //mise a jourl'adherent qu'on vient de changer
-                AdDAO.merge(a); 
-                JpaUtil.validerTransaction();
-                
-                JpaUtil.fermerEntityManager();
-                
-                try {
-                    verifyEvenement(d);
-                } catch (Exception ex) {
-                    Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
-                }
+            if (dDAO.demandeExists(d)){
+                 throw new ServiceException("ERROR : Vous avez deja creer cette demande");
             }
-        } catch (Exception ex) {
+            
+            do {
+                //demandes compatibles
+                List<Demande> demandesCompatibles = dDAO.getSame(d);
+                
+                JpaUtil.ouvrirTransaction();
+                
+                 //On cree la demande
+                dDAO.persister(d);
+
+                //On l'ajoute du côté de l'adhérent
+                Adherent current = d.getDemandeur();
+                current.addDemande(d);
+            }while(true);
+            
+
+            AdherentDAO AdDAO = new AdherentDAO();
+            DDAO.persister(d);
+            Adherent a = d.getDemandeur();
+            a.addListDemande(d);
+            //mise a jourl'adherent qu'on vient de changer
+            AdDAO.merge(a); 
+            JpaUtil.validerTransaction();
+
+            JpaUtil.fermerEntityManager();
+
+            try {
+                verifyEvenement(d);
+            } catch (Exception ex) {
+                Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+         catch (Exception ex) {
             Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
         }
 
@@ -161,7 +179,95 @@ public class ServiceMetier {
                 
         return false;
         
-    }   
+    }
+	
+
+    
+    static public List<Adherent> ConsulterListeAd() {
+
+        JpaUtil.creerEntityManager();
+
+        AdherentDAO AdDAO = new AdherentDAO();
+        List<Adherent> list=new ArrayList<Adherent>();;
+        try {     
+            list= AdDAO.findAll();
+        } catch (Exception ex) {
+            Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        JpaUtil.fermerEntityManager();
+        
+        return list;
+    }
+        
+    static public List<Activite> ConsulterListeAc() {
+
+        JpaUtil.creerEntityManager();
+
+        ActiviteDAO AcDAO = new ActiviteDAO();
+        List<Activite> list=new ArrayList<Activite>();
+        try {     
+            list= AcDAO.findAll();
+        } catch (Exception ex) {
+            Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        JpaUtil.fermerEntityManager();
+
+        return list;
+    }
+
+    static public List<Lieu> ConsulterListeLieu() {
+
+        JpaUtil.creerEntityManager();
+
+        LieuDAO lDAO = new LieuDAO();
+        List<Lieu> list=new ArrayList<Lieu>();
+        try {     
+            list= lDAO.findAll();
+        } catch (Exception ex) {
+            Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        JpaUtil.fermerEntityManager();
+
+        return list;
+    }
+    
+    static public List<Evenement> ConsulterListeEvenement() {
+
+        JpaUtil.creerEntityManager();
+
+        EvenementDAO EvDAO = new EvenementDAO();
+        List<Evenement> list=new ArrayList<Evenement>();
+        try {     
+            list= EvDAO.findAll();
+        } catch (Exception ex) {
+            Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        JpaUtil.fermerEntityManager();
+        
+        return list;
+    }
+	
+	//à tester
+	static public List<Evenement> getAllEvenementPastToday() {
+
+        JpaUtil.creerEntityManager();
+
+        EvenementDAO EvDAO = new EvenementDAO();
+        List<Evenement> list=new ArrayList<Evenement>();
+        try {     
+         //   list= EvDAO.findAllPastToday();
+        } catch (Exception ex) {
+            Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        JpaUtil.fermerEntityManager();
+        
+        return list;
+    }
     
     static public void modifyPAF(Evenement e,Double d){
         JpaUtil.creerEntityManager();
@@ -342,13 +448,13 @@ public class ServiceMetier {
         JpaUtil.creerEntityManager();
 		
         List<LatLng> coordonees = new ArrayList<LatLng>();
-		List<Adherent> listAdherents = evenement.listAdherents;
+		List<Adherent> listAdherents = evenement.getListAdherents();
 		
 		LatLng l;
 		for ( Adherent ad : listAdherents)
             {
-				l.longitude = ad.longitude;
-				l.latitude = ad.latitude;
+				l.longitude = ad.getLongitude();
+				l.latitude = ad.getLatitude();
 				coordonees.add(l);
 			}
 
