@@ -22,7 +22,7 @@ import com.google.maps.model.LatLng;
  * @author epetit
  */
 public class ServiceMetier {
-    
+    // c minuscule
     static public void CreerAdherent(Adherent ad){
 
         ad = ServiceTechnique.miseAJourAdherent(ad);
@@ -36,7 +36,7 @@ public class ServiceMetier {
         
         JpaUtil.fermerEntityManager();
     }
-    
+    // c minuscule
     static public void CreerActivite(Activite a){
 
         JpaUtil.creerEntityManager();
@@ -75,7 +75,7 @@ public class ServiceMetier {
         
         JpaUtil.fermerEntityManager();
     }
-    
+    // plus logique si on l'appelais "creerDemande" puisqu'on a creerAdherent et creerActivite
     static public void PersisterDemande(Demande d){        
 
         System.out.println("Je suis dans PersisterDemande");
@@ -158,95 +158,7 @@ public class ServiceMetier {
                 
         return false;
         
-    }
-	
-
-    
-    static public List<Adherent> ConsulterListeAd() {
-
-        JpaUtil.creerEntityManager();
-
-        AdherentDAO AdDAO = new AdherentDAO();
-        List<Adherent> list=new ArrayList<Adherent>();;
-        try {     
-            list= AdDAO.findAll();
-        } catch (Exception ex) {
-            Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        JpaUtil.fermerEntityManager();
-        
-        return list;
-    }
-        
-    static public List<Activite> ConsulterListeAc() {
-
-        JpaUtil.creerEntityManager();
-
-        ActiviteDAO AcDAO = new ActiviteDAO();
-        List<Activite> list=new ArrayList<Activite>();
-        try {     
-            list= AcDAO.findAll();
-        } catch (Exception ex) {
-            Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        JpaUtil.fermerEntityManager();
-
-        return list;
-    }
-
-    static public List<Lieu> ConsulterListeLieu() {
-
-        JpaUtil.creerEntityManager();
-
-        LieuDAO lDAO = new LieuDAO();
-        List<Lieu> list=new ArrayList<Lieu>();
-        try {     
-            list= lDAO.findAll();
-        } catch (Exception ex) {
-            Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        JpaUtil.fermerEntityManager();
-
-        return list;
-    }
-    
-    static public List<Evenement> ConsulterListeEvenement() {
-
-        JpaUtil.creerEntityManager();
-
-        EvenementDAO EvDAO = new EvenementDAO();
-        List<Evenement> list=new ArrayList<Evenement>();
-        try {     
-            list= EvDAO.findAll();
-        } catch (Exception ex) {
-            Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        JpaUtil.fermerEntityManager();
-        
-        return list;
-    }
-	
-	//à tester
-	static public List<Evenement> getAllEvenementPastToday() {
-
-        JpaUtil.creerEntityManager();
-
-        EvenementDAO EvDAO = new EvenementDAO();
-        List<Evenement> list=new ArrayList<Evenement>();
-        try {     
-            list= EvDAO.findAllPastToday();
-        } catch (Exception ex) {
-            Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        JpaUtil.fermerEntityManager();
-        
-        return list;
-    }
+    }   
     
     static public void modifyPAF(Evenement e,Double d){
         JpaUtil.creerEntityManager();
@@ -299,6 +211,23 @@ public class ServiceMetier {
         JpaUtil.fermerEntityManager();
         
         return adherent;
+    }
+	
+	static public List<Adherent> getAllAdherent() {
+
+        JpaUtil.creerEntityManager();
+
+        AdherentDAO AdDAO = new AdherentDAO();
+        List<Adherent> list=new ArrayList<Adherent>();;
+        try {     
+            list= AdDAO.findAll();
+        } catch (Exception ex) {
+            Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        JpaUtil.fermerEntityManager();
+        
+        return list;
     }
     
     static public Adherent getAdherentByID (long id)
@@ -443,7 +372,44 @@ public class ServiceMetier {
         
         return ev;
     }
-    
+		
+	//à tester
+	static public List<Evenement> getAllEvenementPastToday() {
+
+        JpaUtil.creerEntityManager();
+
+        EvenementDAO EvDAO = new EvenementDAO();
+        List<Evenement> list=new ArrayList<Evenement>();
+        try {     
+            list= EvDAO.findAllPastToday();
+        } catch (Exception ex) {
+            Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        JpaUtil.fermerEntityManager();
+        
+        return list;
+    }
+	
+		
+	//à tester
+	static public List<Evenement> getFutureEvenementAdherent(Adherent ad) {
+
+        JpaUtil.creerEntityManager();
+
+        EvenementDAO EvDAO = new EvenementDAO();
+        List<Evenement> list=new ArrayList<Evenement>();
+        try { 
+			//A FAIRE dans EvenementDAO, tout les evenements à venir d'un adherent
+            //list= EvDAO.findAllPastToday();
+        } catch (Exception ex) {
+            Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        JpaUtil.fermerEntityManager();
+        
+        return list;
+    }
 
      static public Activite getActiviteByID (long id)
     {
@@ -459,9 +425,25 @@ public class ServiceMetier {
         
         return ac;
     }
+	
+	static public List<Evenement> getAllEvenement() {
+
+        JpaUtil.creerEntityManager();
+
+        EvenementDAO EvDAO = new EvenementDAO();
+        List<Evenement> list=new ArrayList<Evenement>();
+        try {     
+            list= EvDAO.findAll();
+        } catch (Exception ex) {
+            Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        JpaUtil.fermerEntityManager();
+        
+        return list;
+    }
      
-     
-      static public List<Activite> getAllActivite ()
+    static public List<Activite> getAllActivite ()
     {        
         JpaUtil.creerEntityManager();
         ActiviteDAO AcDAO = new ActiviteDAO();

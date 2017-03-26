@@ -36,7 +36,7 @@ public class EvenementDAO {
         return activites;
     }
 	
-	public List<Evenement> findAll() throws Exception {
+	public List<Evenement> findAfterTodayAll() throws Exception {
         EntityManager em = JpaUtil.obtenirEntityManager();
         List<Evenement> activites = new ArrayList<Evenement>();
 		//date d'aujourd'hui

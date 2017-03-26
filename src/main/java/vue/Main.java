@@ -27,23 +27,33 @@ import java.util.List;
  * @author epetit
  */
 public class Main {
+	
     
-    static Adherent saisieA(){
-        
-        System.out.println("Hello");
+	static public void message(String mes){
+
+        Saisie.lireChaine(mes);
+    }
+    
+    static public void creerAdherentSaisie(Adherent ad){
+
+		System.out.println("Hello");
+		
         String prenom = Saisie.lireChaine("Entrez votre prenom: ");
         String nom = Saisie.lireChaine("Entrez votre nom: ");
         String mail = Saisie.lireChaine("Entrez votre mail: ");
         String adresse = Saisie.lireChaine("Entrez votre adresse: ");
+		
         Adherent a= new Adherent(nom, prenom, mail.toLowerCase(), adresse);
-         
-        return a;
-    }
-    
-    static public void CreerAdherent(Adherent ad){
-
         ServiceMetier.CreerAdherent(ad);
     }
+	
+	static public void afficherAdherents(){
+		List<Adherent> listA = getAllAdherent();
+		for ( Adherent ad : listA)
+		{
+			System.out.println(Adherent);
+		}
+	}
     
     static public void testDemandes(){
         
@@ -103,21 +113,29 @@ public class Main {
     public static void main(String[] args) throws Exception {
         JpaUtil.init();
         
-        //Adherent ad = saisieA();
-        //ServiceMetier.CreerAdherent(ad);
-        //ServiceMetier.ConsulterListeAd();
-        //ConsulterListeAd();
-        //ConsulterListeAc();
-        //ConsulterListeLieu();
+		//vérifier qu'un mail existe
+		//trouver un adherent par son mail
+		//trouver un adherent par son ID
+		
+		message("Vous allez ajouter un nouvel adhérent dans la base. Appuyez sur Entrée pour continuer");
+        creerAdherentSaisie();
+		
+		message("Voilà la nouvelle liste des adhérents. Appuyez sur Entrée pour continuer");
+        afficherAdherents();
         
+        //ajouter des demandes et montrer qu'elles sont là
+		
+		//ajouter deux demandes pour une activité au même moment, montrer les demandes, et montrer l'évenement créé
+		//afficher la liste des évenements
+		
+		//afficher la liste des demandes d'un utilisateur
+		//afficher les évenements à venir d'un utilisateur
+		
+		//changer le PAF et le lieu d'un evenement
+		//afficher la liste des évenements
+		
         //System.out.println("romain : " +ServiceMetier.verifyMail("romain.mie@free.fr"));
         //System.out.println("rien : " +ServiceMetier.verifyMail("..."));
-        
-        //trouverActivite();
-        //testDemandes();
-        //testDAO();
-        testPAFLieu();
-        
         
         JpaUtil.destroy();
     }
