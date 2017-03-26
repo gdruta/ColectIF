@@ -1,4 +1,4 @@
-package dao;
+﻿package dao;
 
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
@@ -36,7 +36,6 @@ public class EvenementDAO {
         
         return activites;
     }
-    
     //Evenements futurs
     public List<Evenement> findAllFutur() throws Exception {
         EntityManager em = JpaUtil.obtenirEntityManager();
