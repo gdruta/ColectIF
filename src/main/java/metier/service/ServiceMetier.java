@@ -37,13 +37,19 @@ public class ServiceMetier {
         JpaUtil.ouvrirTransaction();       
         AdherentDAO AdDAO = new AdherentDAO();
         AdDAO.persister(ad);
+        boolean error=false;
         try {            
             JpaUtil.validerTransaction();
+            
         } catch (Exception ex) {
             JpaUtil.annulerTransaction();
+            ServiceTechnique.sendMailInscriptionFail(ad.getPrenom(), ad.getMail());
+            error=true;
             throw new ServiceException("ERREUR : Adhérent n'a pas pu être ajouté.");
         }       
-        
+        if (!error){
+            ServiceTechnique.sendMailInscription(ad);
+        }
         JpaUtil.fermerEntityManager();
     }
     // c minuscule
@@ -94,42 +100,55 @@ public class ServiceMetier {
             if (dDAO.demandeExists(d)){
                  throw new ServiceException("ERROR : Vous avez deja creer cette demande");
             }
-            
+            boolean errorTransaction=false;
             do {
                 //demandes compatibles
                 List<Demande> demandesCompatibles = dDAO.getSame(d);
                 
                 JpaUtil.ouvrirTransaction();
                 
-                 //On cree la demande
+                //On cree la demande
                 dDAO.persister(d);
 
                 //On l'ajoute du côté de l'adhérent
-                Adherent current = d.getDemandeur();
-                current.addDemande(d);
-            }while(true);
-            
-
-            AdherentDAO AdDAO = new AdherentDAO();
-            DDAO.persister(d);
-            Adherent a = d.getDemandeur();
-            a.addListDemande(d);
-            //mise a jourl'adherent qu'on vient de changer
-            AdDAO.merge(a); 
-            JpaUtil.validerTransaction();
-
+                Adherent a = d.getDemandeur();
+                a.addDemande(d);
+                
+                //persister/merge BD
+                AdherentDAO AdDAO = new AdherentDAO();
+                dDAO.persister(d);
+                AdDAO.merge(a);
+                
+                demandesCompatibles.add(d);
+                
+                if (d.getActivite().getNbParticipants()==demandesCompatibles.size())
+                {
+                    List<Adherent> aList=new ArrayList<Adherent>();
+                    for ( Demande demandeFin : demandesCompatibles)
+                    {                        
+                        demandeFin.setDejaPris(true);
+                        aList.add(demandeFin.getDemandeur());
+                    }
+                    Evenement evenement = new Evenement(d.getDate(),d.getMoment(),d.getActivite(),aList);
+                    EvenementDAO eDAO = new EvenementDAO();
+                    eDAO.persister(evenement);
+                }  
+                
+                //mise a jour             
+                try {            
+                    JpaUtil.validerTransaction();
+                } catch (Exception ex) {
+                    JpaUtil.annulerTransaction();
+                    errorTransaction=true;
+                }               
+                
+            }while(errorTransaction); 
             JpaUtil.fermerEntityManager();
-
-            try {
-                verifyEvenement(d);
-            } catch (Exception ex) {
-                Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            
         }
          catch (Exception ex) {
             Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
         }
-
         
     }
     
@@ -184,78 +203,8 @@ public class ServiceMetier {
         
     }
 	
-
-    
-    static public List<Adherent> ConsulterListeAd() {
-
-        JpaUtil.creerEntityManager();
-
-        AdherentDAO AdDAO = new AdherentDAO();
-        List<Adherent> list=new ArrayList<Adherent>();;
-        try {     
-            list= AdDAO.findAll();
-        } catch (Exception ex) {
-            Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        JpaUtil.fermerEntityManager();
-        
-        return list;
-    }
-        
-    static public List<Activite> ConsulterListeAc() {
-
-        JpaUtil.creerEntityManager();
-
-        ActiviteDAO AcDAO = new ActiviteDAO();
-        List<Activite> list=new ArrayList<Activite>();
-        try {     
-            list= AcDAO.findAll();
-        } catch (Exception ex) {
-            Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        JpaUtil.fermerEntityManager();
-
-        return list;
-    }
-
-    static public List<Lieu> ConsulterListeLieu() {
-
-        JpaUtil.creerEntityManager();
-
-        LieuDAO lDAO = new LieuDAO();
-        List<Lieu> list=new ArrayList<Lieu>();
-        try {     
-            list= lDAO.findAll();
-        } catch (Exception ex) {
-            Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        JpaUtil.fermerEntityManager();
-
-        return list;
-    }
-    
-    static public List<Evenement> ConsulterListeEvenement() {
-
-        JpaUtil.creerEntityManager();
-
-        EvenementDAO EvDAO = new EvenementDAO();
-        List<Evenement> list=new ArrayList<Evenement>();
-        try {     
-            list= EvDAO.findAll();
-        } catch (Exception ex) {
-            Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        JpaUtil.fermerEntityManager();
-        
-        return list;
-    }
-	
-	//à tester
-	static public List<Evenement> getAllEvenementPastToday() {
+    //à tester
+    static public List<Evenement> getAllEvenementPastToday() {
 
         JpaUtil.creerEntityManager();
 
@@ -268,7 +217,7 @@ public class ServiceMetier {
         }
 
         JpaUtil.fermerEntityManager();
-        
+
         return list;
     }
     
@@ -277,7 +226,9 @@ public class ServiceMetier {
         JpaUtil.ouvrirTransaction();
         EvenementDAO EvDAO = new EvenementDAO();
         EvDAO.updatePAF(e, d);
-        
+        if (e.getLieu()!=null){
+            ServiceTechnique.sendMail(e);
+        }
         JpaUtil.validerTransaction();
         JpaUtil.fermerEntityManager();
     }
@@ -287,7 +238,10 @@ public class ServiceMetier {
         JpaUtil.ouvrirTransaction();
         EvenementDAO EvDAO = new EvenementDAO();
         EvDAO.updateLieu(e, l);
-        
+        //A refaire
+        if (e.getPAF()!=null){
+            ServiceTechnique.sendMail(e);
+        }
         JpaUtil.validerTransaction();
         JpaUtil.fermerEntityManager();
     }
@@ -418,7 +372,7 @@ public class ServiceMetier {
         Activite ac = demande.getActivite();
         String moment = demande.getMoment();
         try {
-            dem =DemDAO.findComparable(date, moment, ac);
+            dem =DemDAO.getSame(demande);
         } catch (Exception ex) {
             Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
         } 
@@ -431,12 +385,9 @@ public class ServiceMetier {
         JpaUtil.creerEntityManager();
         DemandeDAO DemDAO = new DemandeDAO();
         List<Demande> dem = new ArrayList<Demande>();
-        GregorianCalendar date = demande.getDate();
-        Activite ac = demande.getActivite();
-        String moment = demande.getMoment();
-        Adherent ad = demande.getDemandeur();
+        
         try {
-            dem =DemDAO.findComparableSameAuthor(date, moment, ac, ad);
+            dem =DemDAO.getDemandesExistant(demande);
         } catch (Exception ex) {
             Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
         } 
@@ -453,11 +404,11 @@ public class ServiceMetier {
         List<LatLng> coordonees = new ArrayList<LatLng>();
 		List<Adherent> listAdherents = evenement.getListAdherents();
 		
-		LatLng l;
+		LatLng l=new LatLng(0,0);
 		for ( Adherent ad : listAdherents)
             {
-				l.longitude = ad.getLongitude();
-				l.latitude = ad.getLatitude();
+				l.lng = ad.getLongitude();
+				l.lat = ad.getLatitude();
 				coordonees.add(l);
 			}
 
@@ -480,14 +431,14 @@ public class ServiceMetier {
     }
 		
 	//à tester
-	static public List<Evenement> getAllEvenementPastToday() {
+	static public List<Evenement> getAllFuturEvenement() {
 
         JpaUtil.creerEntityManager();
 
         EvenementDAO EvDAO = new EvenementDAO();
         List<Evenement> list=new ArrayList<Evenement>();
         try {     
-            list= EvDAO.findAllPastToday();
+            list= EvDAO.findAllFutur();
         } catch (Exception ex) {
             Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -532,7 +483,7 @@ public class ServiceMetier {
         return ac;
     }
 	
-	static public List<Evenement> getAllEvenement() {
+    static public List<Evenement> getAllEvenement() {
 
         JpaUtil.creerEntityManager();
 

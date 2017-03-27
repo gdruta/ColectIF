@@ -79,7 +79,7 @@ public class Evenement {
         return lieu;
     }
 
-    public double getPAF() {
+    public Double getPAF() {
         return PAF;
     }
 

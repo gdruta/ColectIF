@@ -35,19 +35,19 @@ public class Main {
         Saisie.lireChaine(mes);
     }
     
-    static public void creerAdherentSaisie(Adherent ad){
+    static public void creerAdherentSaisie(){
 
-		System.out.println("Hello");
+        System.out.println("Hello");
 		
         String prenom = Saisie.lireChaine("Entrez votre prenom: ");
         String nom = Saisie.lireChaine("Entrez votre nom: ");
         String mail = Saisie.lireChaine("Entrez votre mail: ");
         String adresse = Saisie.lireChaine("Entrez votre adresse: ");
 		
-        Adherent a= new Adherent(nom, prenom, mail.toLowerCase(), adresse);
+        Adherent ad= new Adherent(nom, prenom, mail.toLowerCase(), adresse);
             try {
                 ServiceMetier.CreerAdherent(ad);
-            } catch (ServiceException ex) {
+            } catch (ServiceException ex) {                
                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
             }
     }
@@ -106,14 +106,14 @@ public class Main {
         
     }
     
-    static public void testPAFLieu(){
-        System.out.println("On rentre dans test");
-        Evenement e = ServiceMetier.getEvenementByID(2203);
-        System.out.println(e);
-        ServiceMetier.modifyPAF(e, new Double(5));
-        ServiceMetier.modifyLieu(e, ServiceMetier.getLieuByID(1));
-        System.out.println(e);
-    }
+//    static public void testPAFLieu(){
+//        System.out.println("On rentre dans test");
+//        Evenement e = ServiceMetier.getEvenementByID(2203);
+//        System.out.println(e);
+//        ServiceMetier.modifyPAF(e, new Double(5));
+//        ServiceMetier.modifyLieu(e, ServiceMetier.getLieuByID(1));
+//        System.out.println(e);
+//    }
      
         
     
@@ -123,16 +123,36 @@ public class Main {
      */
     public static void main(String[] args) throws Exception {
         JpaUtil.init();
+        //creation mail
+        message("Vous allez ajouter un nouvel adhérent dans la base. Appuyez sur Entrée pour continuer");
+        creerAdherentSaisie();
         
-		//vérifier qu'un mail existe
-		//trouver un adherent par son mail
-		//trouver un adherent par son ID
-		
-		message("Vous allez ajouter un nouvel adhérent dans la base. Appuyez sur Entrée pour continuer");
-        //creerAdherentSaisie();
-		
-		message("Voilà la nouvelle liste des adhérents. Appuyez sur Entrée pour continuer");
+        //
+        message("Voilà la nouvelle liste des adhérents. Appuyez sur Entrée pour continuer");
         afficherAdherents();
+        
+        //vérifier qu'un mail existe
+        String email=Saisie.lireChaine("Donner le email");
+        System.out.println(ServiceMetier.verifyMail(email));
+        email=Saisie.lireChaine("Donner le email");
+        System.out.println(ServiceMetier.verifyMail(email));
+        
+        //trouver un adherent par son mail
+        email=Saisie.lireChaine("Donner le email");
+        Adherent a=ServiceMetier.getAdherentByMail(email);
+        if (a!=null){
+            System.out.println(a);
+        }
+        
+        //trouver un adherent par son ID
+        long id=Long.parseLong(Saisie.lireChaine("Donner un id"));
+        a=ServiceMetier.getAdherentByID(id);
+        if (a!=null){
+            System.out.println(a);
+        }
+        
+		
+        
         
         //ajouter des demandes et montrer qu'elles sont là
 		
@@ -145,8 +165,7 @@ public class Main {
 		//changer le PAF et le lieu d'un evenement
 		//afficher la liste des évenements
 		
-        //System.out.println("romain : " +ServiceMetier.verifyMail("romain.mie@free.fr"));
-        //System.out.println("rien : " +ServiceMetier.verifyMail("..."));
+        
         
         JpaUtil.destroy();
     }
