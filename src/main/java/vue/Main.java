@@ -30,14 +30,12 @@ import metier.service.ServiceException;
 public class Main {
 	
     
-	static public void message(String mes){
+	static public String message(String mes){
 
-        Saisie.lireChaine(mes);
+            return Saisie.lireChaine(mes);
     }
     
-    static public void creerAdherentSaisie(){
-
-        System.out.println("Hello");
+    static public void ajouterAdherent(){        
 		
         String prenom = Saisie.lireChaine("Entrez votre prenom: ");
         String nom = Saisie.lireChaine("Entrez votre nom: ");
@@ -45,48 +43,21 @@ public class Main {
         String adresse = Saisie.lireChaine("Entrez votre adresse: ");
 		
         Adherent ad= new Adherent(nom, prenom, mail.toLowerCase(), adresse);
-            try {
-                ServiceMetier.CreerAdherent(ad);
-            } catch (ServiceException ex) {                
-                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            try {                
+                ServiceMetier.creerAdherent(ad);
+            } catch (ServiceException ex) { 
+                ex.printStackTrace();
+                //Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
             }
     }
 	
-	static public void afficherAdherents(){
-		List<Adherent> listA = getAllAdherent();
-		for ( Adherent ad : listA)
-		{
-			System.out.println(ad);
-		}
-	}
-    
-    static public void testDemandes(){
-        
-        Adherent ad = ServiceMetier.getAdherentByMail("romain.mie@free.fr");
-        Adherent ad2 = ServiceMetier.getAdherentByMail("rgoguollot@gmail.com");
-        System.out.println(ad);
-        System.out.println(ad2);
-        
-        Activite ac = ServiceMetier.getActiviteByID(27);
-        System.out.println(ac);
-        Demande d1 = new Demande(ad, ac ,new GregorianCalendar(2017,3,21) , "soir");
-        Demande d2 = new Demande(ad2, ac ,new GregorianCalendar(2017,3,21) , "soir");
-        
-        // ajouter aux methodes DAO des recherches avec facteur, demande de doublons, toute les demandes avec activité x, toute les demandes d'adherent, d'une date...
-            try {
-                ServiceMetier.CreerDemande(d1);
-            } catch (ServiceException ex) {
-                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+    static public void afficherAdherents(){
+            List<Adherent> listA = getAllAdherent();
+            for ( Adherent ad : listA)
+            {
+                    System.out.println(ad);
             }
-            try {
-                ServiceMetier.CreerDemande(d2);
-            } catch (ServiceException ex) {
-                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        System.out.println(d1);
-        System.out.println(d2);       
-        
-    }
+    }       
 
     static public void testDAO(){
         
@@ -123,51 +94,84 @@ public class Main {
      */
     public static void main(String[] args) throws Exception {
         JpaUtil.init();
-        //creation mail
-        message("Vous allez ajouter un nouvel adhérent dans la base. Appuyez sur Entrée pour continuer");
-        creerAdherentSaisie();
-        
-        //
-        message("Voilà la nouvelle liste des adhérents. Appuyez sur Entrée pour continuer");
-        afficherAdherents();
-        
-        //vérifier qu'un mail existe
-        String email=Saisie.lireChaine("Donner le email");
-        System.out.println(ServiceMetier.verifyMail(email));
-        email=Saisie.lireChaine("Donner le email");
-        System.out.println(ServiceMetier.verifyMail(email));
-        
-        //trouver un adherent par son mail
-        email=Saisie.lireChaine("Donner le email");
-        Adherent a=ServiceMetier.getAdherentByMail(email);
-        if (a!=null){
-            System.out.println(a);
-        }
-        
-        //trouver un adherent par son ID
-        long id=Long.parseLong(Saisie.lireChaine("Donner un id"));
-        a=ServiceMetier.getAdherentByID(id);
-        if (a!=null){
-            System.out.println(a);
-        }
-        
-		
-        
-        
-        //ajouter des demandes et montrer qu'elles sont là
-		
-		//ajouter deux demandes pour une activité au même moment, montrer les demandes, et montrer l'évenement créé
-		//afficher la liste des évenements
-		
-		//afficher la liste des demandes d'un utilisateur
-		//afficher les évenements à venir d'un utilisateur
-		
-		//changer le PAF et le lieu d'un evenement
-		//afficher la liste des évenements
-		
-        
+        menuPrincipal();
         
         JpaUtil.destroy();
     }
     
+    public static int menu() {
+        System.out.println(" ==== MENU PRINCIPAL ==== ");
+        int i = 1;
+        System.out.println(i + " : Ajouter adhérent");
+        i++;
+        System.out.println(i + " : Verifier existance mail(connection)");
+        i++;
+        System.out.println(i + " : Ajouter demande");
+        i++;
+        System.out.println(i + " : Lister activites");
+        i++;        
+        System.out.println(i + " : Lister demandes d'un adhérent");
+        i++;
+        System.out.println(i + " : Lister évènements prohains d'un adhérent");
+        i++;
+        System.out.println(i + " : Lister evenements");
+        i++;
+        System.out.println(i + " : Lister lieux");
+        i++;        
+        System.out.println(i + " : Ajouter PAF");
+        i++;
+        System.out.println(i + " : Ajouter Lieu");
+        i++;
+        System.out.println(i + " : Quitter programme");
+        i++;
+
+        return getMenuOption(1, i);
+    }
+    private static void menuPrincipal() {
+        boolean quit=false;
+        do{
+            int option=menu();
+            switch(option){
+                case 1:
+                    ajouterAdherent();
+                    break;
+                case 2:
+                    boolean result=ServiceMetier.verifyMail(message("Connection avec le mail : "));
+                    if (result)
+                    {
+                        System.out.println("Connection etabli");
+                    }else{
+                        System.out.println("Email introuvable");
+                    }
+                    break;
+                case 3:
+                    break;
+                case 4:
+                    break;
+                case 5:
+                    break;
+                case 6:
+                    break;
+                case 7:
+                    break;
+                case 8:
+                    break;
+                case 9:
+                    break;
+                case 10:
+                    break;
+                case 11:
+                    quit=true;
+                    break;                
+            }
+                    
+        }while(!quit);
+    }
+
+    private static int getMenuOption(int i, int i0) {
+        return  Saisie.lireInteger("votre option : ");
+    }
+
+    
+
 }

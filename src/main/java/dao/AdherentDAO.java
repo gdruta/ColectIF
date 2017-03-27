@@ -64,4 +64,13 @@ public class AdherentDAO {
         em.merge(a);
     }
     
+    public List<Adherent> updateAll (List<Adherent> aList){
+        EntityManager em = JpaUtil.obtenirEntityManager();
+        for ( Adherent adherent : aList)
+        {                        
+            em.merge(adherent);
+        }
+        return aList;
+    }
+    
 }

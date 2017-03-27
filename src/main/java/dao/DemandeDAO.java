@@ -71,11 +71,12 @@ public class DemandeDAO {
         EntityManager em = JpaUtil.obtenirEntityManager();
         List<Demande> dem = new ArrayList<Demande>();
         try {
-            String query = "SELECT a FROM Demande a WHERE a.date=:date1 AND a.activite=:activite1 AND a.moment=:moment1" ;
+            String query = "SELECT a FROM Demande a WHERE a.date=:date1 AND a.activite=:activite1 AND a.moment=:moment1 AND a.dejaPris:=dejaPris1" ;
             Query q = em.createQuery(query);
             q.setParameter("date1", d.getDate());
             q.setParameter("activite1", d.getActivite());
             q.setParameter("moment1", d.getMoment());
+            q.setParameter("dejaPris1", d.isDejaPris());
             dem = (List<Demande>) q.getResultList();
         }
         catch(Exception e) {
@@ -113,9 +114,16 @@ public class DemandeDAO {
     }
     
     
-        public void persister (Demande d){
+    public void persister (Demande d){
         EntityManager em = JpaUtil.obtenirEntityManager();
         em.persist(d);
     }
-    
+    public List<Demande> updateAll (List<Demande> dList){
+        EntityManager em = JpaUtil.obtenirEntityManager();
+        for ( Demande demande : dList)
+        {                        
+            em.merge(demande);
+        }
+        return dList;
+    }
 }

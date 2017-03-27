@@ -8,10 +8,10 @@
     <class>metier.modele.Demande</class>
     <class>metier.modele.Evenement</class>
     <properties>
-      <property name="javax.persistence.jdbc.url" value="jdbc:derby://localhost:1527/DBCollect&apos;IF"/>
+      <property name="javax.persistence.jdbc.url" value="jdbc:derby://localhost:1527/ColectIF"/>
       <property name="javax.persistence.jdbc.password" value="mdp"/>
       <property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.ClientDriver"/>
-      <property name="javax.persistence.jdbc.user" value="B3326"/>
+      <property name="javax.persistence.jdbc.user" value="gdruta"/>
       <property name="javax.persistence.schema-generation.database.action" value="create"/>
     </properties>
   </persistence-unit>
