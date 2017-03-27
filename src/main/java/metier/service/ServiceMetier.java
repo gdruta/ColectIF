@@ -183,77 +183,7 @@ public class ServiceMetier {
         return false;
         
     }
-	
 
-    
-    static public List<Adherent> ConsulterListeAd() {
-
-        JpaUtil.creerEntityManager();
-
-        AdherentDAO AdDAO = new AdherentDAO();
-        List<Adherent> list=new ArrayList<Adherent>();;
-        try {     
-            list= AdDAO.findAll();
-        } catch (Exception ex) {
-            Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        JpaUtil.fermerEntityManager();
-        
-        return list;
-    }
-        
-    static public List<Activite> ConsulterListeAc() {
-
-        JpaUtil.creerEntityManager();
-
-        ActiviteDAO AcDAO = new ActiviteDAO();
-        List<Activite> list=new ArrayList<Activite>();
-        try {     
-            list= AcDAO.findAll();
-        } catch (Exception ex) {
-            Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        JpaUtil.fermerEntityManager();
-
-        return list;
-    }
-
-    static public List<Lieu> ConsulterListeLieu() {
-
-        JpaUtil.creerEntityManager();
-
-        LieuDAO lDAO = new LieuDAO();
-        List<Lieu> list=new ArrayList<Lieu>();
-        try {     
-            list= lDAO.findAll();
-        } catch (Exception ex) {
-            Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        JpaUtil.fermerEntityManager();
-
-        return list;
-    }
-    
-    static public List<Evenement> ConsulterListeEvenement() {
-
-        JpaUtil.creerEntityManager();
-
-        EvenementDAO EvDAO = new EvenementDAO();
-        List<Evenement> list=new ArrayList<Evenement>();
-        try {     
-            list= EvDAO.findAll();
-        } catch (Exception ex) {
-            Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        JpaUtil.fermerEntityManager();
-        
-        return list;
-    }
-	
 	//à tester
 	static public List<Evenement> getAllEvenementPastToday() {
 
