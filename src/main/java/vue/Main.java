@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 import metier.service.ServiceMetier;
 import static metier.service.ServiceMetier.*;
 import java.util.List;
+import metier.service.ServiceException;
 
 
 
@@ -44,14 +45,18 @@ public class Main {
         String adresse = Saisie.lireChaine("Entrez votre adresse: ");
 		
         Adherent a= new Adherent(nom, prenom, mail.toLowerCase(), adresse);
-        ServiceMetier.CreerAdherent(ad);
+            try {
+                ServiceMetier.CreerAdherent(ad);
+            } catch (ServiceException ex) {
+                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            }
     }
 	
 	static public void afficherAdherents(){
 		List<Adherent> listA = getAllAdherent();
 		for ( Adherent ad : listA)
 		{
-			System.out.println(Adherent);
+			System.out.println(ad);
 		}
 	}
     
@@ -68,10 +73,16 @@ public class Main {
         Demande d2 = new Demande(ad2, ac ,new GregorianCalendar(2017,3,21) , "soir");
         
         // ajouter aux methodes DAO des recherches avec facteur, demande de doublons, toute les demandes avec activité x, toute les demandes d'adherent, d'une date...
-        
-        
-        ServiceMetier.CreerDemande(d1);
-        ServiceMetier.CreerDemande(d2);
+            try {
+                ServiceMetier.CreerDemande(d1);
+            } catch (ServiceException ex) {
+                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            try {
+                ServiceMetier.CreerDemande(d2);
+            } catch (ServiceException ex) {
+                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            }
         System.out.println(d1);
         System.out.println(d2);       
         
@@ -118,7 +129,7 @@ public class Main {
 		//trouver un adherent par son ID
 		
 		message("Vous allez ajouter un nouvel adhérent dans la base. Appuyez sur Entrée pour continuer");
-        creerAdherentSaisie();
+        //creerAdherentSaisie();
 		
 		message("Voilà la nouvelle liste des adhérents. Appuyez sur Entrée pour continuer");
         afficherAdherents();
